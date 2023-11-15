@@ -26,7 +26,7 @@ const CustomHeader = () => {
         <TouchableOpacity onPress={openModal}>
           <Image
             style={styles.bike}
-            source={require("@/assets/images/bike.avif")}
+            source={require("@/assets/images/bike.png")}
           />
         </TouchableOpacity>
         <TouchableOpacity style={styles.titleContainer} onPress={openModal}>
@@ -61,14 +61,14 @@ const styles = StyleSheet.create({
     height: 60,
     backgroundColor: "#fff",
     flexDirection: "row",
-    gap: 10,
+    gap: 15,
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 20,
   },
   bike: {
-    width: 50,
-    height: 50,
+    width: 30,
+    height: 30,
   },
   titleContainer: {
     flex: 1,
