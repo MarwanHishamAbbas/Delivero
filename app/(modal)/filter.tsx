@@ -1,48 +1,137 @@
 import {
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
   View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  ListRenderItem,
 } from "react-native"
-
-import Colors from "@/constants/Colors"
+import React, { useEffect, useState } from "react"
+import Colors from "../../constants/Colors"
 import { useNavigation } from "expo-router"
 import categories from "@/assets/data/filter.json"
-import FilterItem from "@/components/filter/FilterItem"
+
+import BouncyCheckbox from "react-native-bouncy-checkbox"
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated"
 import ItemBox from "@/components/filter/ItemBox"
+
+interface Category {
+  name: string
+  count: number
+  checked?: boolean
+}
 
 const Filter = () => {
   const navigation = useNavigation()
+  const [items, setItems] = useState<Category[]>(categories)
+  const [selected, setSelected] = useState<Category[]>([])
+  const flexWidth = useSharedValue(0)
+  const scale = useSharedValue(0)
+
+  useEffect(() => {
+    const hasSelected = selected.length > 0
+    const selectedItems = items.filter((item) => item.checked)
+    const newSelected = selectedItems.length > 0
+
+    if (hasSelected !== newSelected) {
+      flexWidth.value = withTiming(newSelected ? 150 : 0)
+      scale.value = withTiming(newSelected ? 1 : 0)
+    }
+
+    setSelected(selectedItems)
+  }, [items])
+
+  const handleClearAll = () => {
+    const updatedItems = items.map((item) => {
+      item.checked = false
+      return item
+    })
+    setItems(updatedItems)
+  }
+
+  const animatedStyles = useAnimatedStyle(() => {
+    return {
+      width: flexWidth.value,
+      opacity: flexWidth.value > 0 ? 1 : 0,
+    }
+  })
+
+  const animatedText = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
+    }
+  })
+
+  const renderItem: ListRenderItem<Category> = ({ item, index }) => (
+    <View style={styles.row}>
+      <Text style={styles.itemText}>
+        {item.name} ({item.count})
+      </Text>
+      <BouncyCheckbox
+        isChecked={items[index].checked}
+        fillColor={Colors.primary}
+        unfillColor="#fff"
+        disableBuiltInState
+        iconStyle={{
+          borderColor: Colors.primary,
+          borderRadius: 4,
+          borderWidth: 2,
+        }}
+        innerIconStyle={{ borderColor: Colors.primary, borderRadius: 4 }}
+        onPress={() => {
+          const isChecked = items[index].checked
+
+          const updatedItems = items.map((item) => {
+            if (item.name === items[index].name) {
+              item.checked = !isChecked
+            }
+            return item
+          })
+
+          setItems(updatedItems)
+        }}
+      />
+    </View>
+  )
 
   return (
     <View style={styles.container}>
-      {/* Filter List */}
       <FlatList
-        data={categories}
-        renderItem={FilterItem}
+        data={items}
+        renderItem={renderItem}
         ListHeaderComponent={<ItemBox />}
       />
-
-      {/* Footer */}
+      <View style={{ height: 90 }} />
       <View style={styles.footer}>
-        <TouchableOpacity
-          style={styles.fullBtn}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.footerText}>Done</Text>
-        </TouchableOpacity>
+        <View style={styles.btnContainer}>
+          <Animated.View style={[animatedStyles, styles.outlineButton]}>
+            <TouchableOpacity onPress={handleClearAll}>
+              <Animated.Text style={[animatedText, styles.outlineButtonText]}>
+                Clear all
+              </Animated.Text>
+            </TouchableOpacity>
+          </Animated.View>
+
+          <TouchableOpacity
+            style={styles.fullButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Text style={styles.footerText}>Done</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   )
 }
 
-export default Filter
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    padding: 24,
     backgroundColor: Colors.lightGrey,
   },
   footer: {
@@ -50,8 +139,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#fff",
     height: 100,
+    backgroundColor: "#fff",
     padding: 10,
     elevation: 10,
     shadowColor: "#000",
@@ -62,15 +151,66 @@ const styles = StyleSheet.create({
       height: -10,
     },
   },
-  fullBtn: {
+  fullButton: {
     backgroundColor: Colors.primary,
-    padding: 15,
-    borderRadius: 5,
+    padding: 16,
     alignItems: "center",
+    borderRadius: 8,
+    flex: 1,
+    height: 56,
   },
   footerText: {
     color: "#fff",
     fontWeight: "bold",
     fontSize: 16,
   },
+  itemContainer: {
+    backgroundColor: "#fff",
+    padding: 8,
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  header: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 16,
+  },
+  item: {
+    flexDirection: "row",
+    gap: 20,
+    alignItems: "center",
+    backgroundColor: "#fff",
+    paddingVertical: 10,
+    borderColor: Colors.grey,
+    borderBottomWidth: 1,
+  },
+  itemText: {
+    flex: 1,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+    backgroundColor: "#fff",
+  },
+  btnContainer: {
+    flexDirection: "row",
+    gap: 12,
+    justifyContent: "center",
+  },
+  outlineButton: {
+    borderColor: Colors.primary,
+    borderWidth: 0.5,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 8,
+    height: 56,
+  },
+  outlineButtonText: {
+    color: Colors.primary,
+    fontWeight: "bold",
+    fontSize: 16,
+  },
 })
+
+export default Filter
