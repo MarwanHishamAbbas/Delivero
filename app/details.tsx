@@ -20,6 +20,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated"
 
+import { SafeAreaView } from "react-native-safe-area-context"
 import ParallaxScrollView from "@/components/ParallaxScrollView"
 
 const Details = () => {
@@ -85,7 +86,7 @@ const Details = () => {
   }
 
   const renderItem: ListRenderItem<any> = ({ item, index }) => (
-    <Link href={"/"} asChild>
+    <Link href={{ pathname: "/(modal)/dish", params: { id: item.id } }} asChild>
       <TouchableOpacity style={styles.item}>
         <View style={{ flex: 1 }}>
           <Text style={styles.dish}>{item.name}</Text>
@@ -192,7 +193,7 @@ const Details = () => {
       {/* {items > 0 && (
         <View style={styles.footer}>
           <SafeAreaView edges={['bottom']} style={{ backgroundColor: '#fff' }}>
-            <Link href="/" asChild>
+            <Link href="/basket" asChild>
               <TouchableOpacity style={styles.fullButton}>
                 <Text style={styles.basket}>{items}</Text>
                 <Text style={styles.footerText}>View Basket</Text>
