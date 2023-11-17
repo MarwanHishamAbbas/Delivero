@@ -22,9 +22,11 @@ import Animated, {
 
 import { SafeAreaView } from "react-native-safe-area-context"
 import ParallaxScrollView from "@/components/ParallaxScrollView"
+import useBasketStore from "@/store/basketStore"
 
 const Details = () => {
   const navigation = useNavigation()
+  const { items, total } = useBasketStore()
   const [activeIndex, setActiveIndex] = useState(0)
 
   const opacity = useSharedValue(0)
@@ -190,9 +192,9 @@ const Details = () => {
       </Animated.View>
 
       {/* Footer Basket */}
-      {/* {items > 0 && (
+      {items > 0 && (
         <View style={styles.footer}>
-          <SafeAreaView edges={['bottom']} style={{ backgroundColor: '#fff' }}>
+          <SafeAreaView edges={["bottom"]} style={{ backgroundColor: "#fff" }}>
             <Link href="/basket" asChild>
               <TouchableOpacity style={styles.fullButton}>
                 <Text style={styles.basket}>{items}</Text>
@@ -202,7 +204,7 @@ const Details = () => {
             </Link>
           </SafeAreaView>
         </View>
-      )} */}
+      )}
     </>
   )
 }

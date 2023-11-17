@@ -5,17 +5,21 @@ import { getDishById } from "@/assets/data/restaurant"
 import Colors from "@/constants/Colors"
 import { SafeAreaView } from "react-native-safe-area-context"
 import Animated, { FadeIn, FadeInLeft } from "react-native-reanimated"
+import useBasketStore from "@/store/basketStore"
+import * as Haptics from "expo-haptics"
 
 const Dish = () => {
   const { id } = useLocalSearchParams()
   const item = getDishById(+id)!
   const router = useRouter()
 
-  //   const addToCart = () => {
-  //     addProduct(item);
-  //     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-  //     router.back();
-  //   };
+  const { addProduct } = useBasketStore()
+
+  const addToCart = () => {
+    addProduct(item)
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+    router.back()
+  }
   return (
     <SafeAreaView
       style={{ flex: 1, backgroundColor: "#fff" }}
@@ -43,7 +47,7 @@ const Dish = () => {
         </View>
 
         <View style={styles.footer}>
-          <TouchableOpacity style={styles.fullButton}>
+          <TouchableOpacity style={styles.fullButton} onPress={addToCart}>
             <Text style={styles.footerText}>Add for ${item?.price}</Text>
           </TouchableOpacity>
         </View>
